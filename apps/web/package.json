@@ -1,0 +1,37 @@
+{
+  "name": "@edubrain/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Front-end EduBrain (Next.js App Router, Tailwind v4, AI SDK 5 UI).",
+  "license": "EUPL-1.2",
+  "author": "Synapsr <contact@synapsr.io>",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/react": "^2.0.195",
+    "@edubrain/core": "workspace:*",
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.2.6",
+    "ai": "^5.0.193",
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-markdown": "^10.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.0",
+    "typescript": "~5.9.3"
+  }
+}

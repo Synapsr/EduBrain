@@ -1,0 +1,75 @@
+name: CI
+
+# CI de qualité uniquement (pas de déploiement) : typecheck + lint + test + build.
+# Voir le README pour le guide de déploiement souverain.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Valeurs factices : la CI tourne en "mode démo" (sans clé Albert réelle).
+  # Le provider mock prend le relais quand ALBERT_API_KEY est absente.
+  DATABASE_URL: postgresql://edubrain:edubrain@localhost:5432/edubrain
+  ALBERT_BASE_URL: https://albert.api.etalab.gouv.fr/v1
+  ALBERT_CHAT_MODEL_SMALL: mock-small
+  ALBERT_CHAT_MODEL_LARGE: mock-large
+  ALBERT_EMBEDDING_MODEL: mock-embedding
+  ALBERT_EMBEDDING_DIM: "1024"
+  API_PORT: "8787"
+  WEB_ORIGIN: http://localhost:3000
+  NEXT_PUBLIC_API_URL: http://localhost:8787
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: edubrain
+          POSTGRES_PASSWORD: edubrain
+          POSTGRES_DB: edubrain
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U edubrain -d edubrain"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run database migrations
+        run: pnpm --filter @edubrain/db db:migrate
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build

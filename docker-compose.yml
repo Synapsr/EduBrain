@@ -1,0 +1,32 @@
+# Infrastructure de développement local — souveraine et auto-hébergeable.
+# PostgreSQL + extension pgvector pour le RAG.
+#
+#   docker compose up -d        # démarre la base
+#   docker compose down         # arrête
+#   docker compose down -v      # arrête + supprime les données
+#
+# L'image pgvector/pgvector embarque l'extension `vector`. La migration Drizzle
+# exécute `CREATE EXTENSION IF NOT EXISTS vector;` au premier déploiement.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: edubrain-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: edubrain
+      POSTGRES_PASSWORD: edubrain
+      POSTGRES_DB: edubrain
+    ports:
+      - "5432:5432"
+    volumes:
+      - edubrain-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edubrain -d edubrain"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  edubrain-postgres-data:
+    name: edubrain-postgres-data

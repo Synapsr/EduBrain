@@ -1,0 +1,39 @@
+{
+  "name": "@edubrain/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API EduBrain (Hono) — détient la clé Albert, logique IA, RAG, Cadres, persistance.",
+  "license": "EUPL-1.2",
+  "author": "Synapsr <contact@synapsr.io>",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^1.0.39",
+    "@ai-sdk/provider": "^2.0.3",
+    "@edubrain/core": "workspace:*",
+    "@edubrain/db": "workspace:*",
+    "@hono/node-server": "^2.0.4",
+    "ai": "^5.0.193",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.23",
+    "pino": "^10.3.1",
+    "postgres": "^3.4.9",
+    "unpdf": "^1.6.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "pino-pretty": "^13.1.3",
+    "tsup": "^8.5.1",
+    "tsx": "^4.22.4",
+    "vitest": "^4.1.7"
+  }
+}

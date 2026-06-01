@@ -1,0 +1,13 @@
+{
+  "name": "@edubrain/config",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Configurations TypeScript partagées (presets stricts) pour le monorepo EduBrain.",
+  "license": "EUPL-1.2",
+  "author": "Synapsr <contact@synapsr.io>",
+  "type": "module",
+  "files": [
+    "tsconfig.node.json",
+    "tsconfig.react.json"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "ALBERT_API_KEY",
+    "ALBERT_BASE_URL",
+    "ALBERT_CHAT_MODEL_SMALL",
+    "ALBERT_CHAT_MODEL_LARGE",
+    "ALBERT_EMBEDDING_MODEL",
+    "ALBERT_EMBEDDING_DIM",
+    "ALBERT_TRANSCRIPTION_MODEL",
+    "DATABASE_URL",
+    "API_PORT",
+    "WEB_ORIGIN",
+    "NEXT_PUBLIC_API_URL"
+  ],
+  "globalDependencies": ["tsconfig.base.json", ".env"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": ["*.tsbuildinfo"]
+    },
+    "lint": {},
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "db:migrate": {
+      "cache": false
+    },
+    "db:seed": {
+      "cache": false
+    }
+  }
+}
