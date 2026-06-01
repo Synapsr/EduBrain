@@ -14,7 +14,7 @@ import {
 import type { DocumentDTO, FrameworkDTO } from '@/lib/types';
 import { Composer } from './composer';
 import { EmptyState } from './empty-state';
-import { RefreshIcon } from './icons';
+import { RefreshIcon, SparkIcon } from './icons';
 import { MessageItem } from './message-item';
 
 /**
@@ -112,44 +112,55 @@ export function ChatThread({
 
   const busy = status === 'submitted' || status === 'streaming';
   const lastIndex = messages.length - 1;
+  const activeFramework = frameworks.find((f) => f.id === frameworkId) ?? null;
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-3xl space-y-7 px-4 pt-8 pb-4">
-          {messages.length === 0 ? (
-            <EmptyState onPick={(text) => sendMessage({ text })} />
-          ) : (
-            messages.map((message, index) => (
-              <MessageItem
-                key={message.id}
-                message={message}
-                streaming={busy && index === lastIndex && message.role === 'assistant'}
-              />
-            ))
-          )}
-
-          {error ? (
-            <div
-              role="alert"
-              className="flex flex-wrap items-center gap-3 rounded-card border border-danger/30 bg-danger/10 px-4 py-3 text-sm"
-            >
-              <span className="text-foreground">{error.message || fr.errors.generic}</span>
-              <button
-                type="button"
-                onClick={() => {
-                  clearError();
-                  regenerate();
-                }}
-                className="inline-flex items-center gap-1.5 rounded-button border border-border bg-surface px-2.5 py-1.5 font-medium transition-colors hover:bg-surface-muted"
-              >
-                <RefreshIcon className="size-4" />
-                {fr.common.retry}
-              </button>
+        <div className="mx-auto max-w-3xl px-4 pb-4">
+          {activeFramework ? (
+            <div className="sticky top-0 z-10 -mx-4 flex justify-center bg-background/80 px-4 py-2.5 backdrop-blur">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
+                <SparkIcon className="size-3.5 text-accent" />
+                Cadre&nbsp;: <span className="text-foreground">{activeFramework.name}</span>
+              </span>
             </div>
           ) : null}
+          <div className={`space-y-7 ${activeFramework ? 'pt-4' : 'pt-8'}`}>
+            {messages.length === 0 ? (
+              <EmptyState onPick={(text) => sendMessage({ text })} />
+            ) : (
+              messages.map((message, index) => (
+                <MessageItem
+                  key={message.id}
+                  message={message}
+                  streaming={busy && index === lastIndex && message.role === 'assistant'}
+                />
+              ))
+            )}
 
-          <div ref={bottomRef} />
+            {error ? (
+              <div
+                role="alert"
+                className="flex flex-wrap items-center gap-3 rounded-card border border-danger/30 bg-danger/10 px-4 py-3 text-sm"
+              >
+                <span className="text-foreground">{error.message || fr.errors.generic}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearError();
+                    regenerate();
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-button border border-border bg-surface px-2.5 py-1.5 font-medium transition-colors hover:bg-surface-muted"
+                >
+                  <RefreshIcon className="size-4" />
+                  {fr.common.retry}
+                </button>
+              </div>
+            ) : null}
+
+            <div ref={bottomRef} />
+          </div>
         </div>
       </div>
 

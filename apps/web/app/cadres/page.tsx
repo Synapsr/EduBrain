@@ -185,7 +185,9 @@ export default function CadresPage() {
                   onSave={handleSave}
                   onCancel={handleCancel}
                   documentsSlot={
-                    !creating && activeFramework ? (
+                    creating ? (
+                      <DocumentsPanel locked />
+                    ) : activeFramework ? (
                       <DocumentsPanel key={activeFramework.id} frameworkId={activeFramework.id} />
                     ) : undefined
                   }
