@@ -111,7 +111,12 @@ export function SupervisionDrawer({
                   {messages.map((message) => (
                     <MessageItem
                       key={message.id}
-                      message={message as unknown as UIMessage}
+                      message={
+                        {
+                          ...message,
+                          metadata: { ...(message.metadata ?? {}), createdAt: message.createdAt },
+                        } as unknown as UIMessage
+                      }
                       variant="supervision"
                     />
                   ))}

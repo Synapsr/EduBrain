@@ -42,7 +42,7 @@ function StudentChatPanel({
           id: m.id,
           role: m.role,
           parts: m.parts,
-          metadata: m.metadata ?? undefined,
+          metadata: { ...(m.metadata ?? {}), createdAt: m.createdAt },
         })) as unknown as UIMessage[];
         setState({ kind: 'ready', messages: ui });
       })
@@ -97,9 +97,14 @@ export function StudentSpace({ token }: { token: string }) {
         } catch {
           /* localStorage indisponible */
         }
+        setLoadingAccess(false);
       })
-      .catch(() => setNotFound(true))
-      .finally(() => setLoadingAccess(false));
+      .catch((err: unknown) => {
+        // Une requête annulée (navigation client / double-effet dev) n'est pas une erreur.
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setNotFound(true);
+        setLoadingAccess(false);
+      });
     return () => controller.abort();
   }, [token]);
 

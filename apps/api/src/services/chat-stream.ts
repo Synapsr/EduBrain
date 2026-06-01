@@ -98,7 +98,7 @@ export function streamChatResponse(
     messageMetadata: ({ part }) => {
       if (part.type !== 'finish') return undefined;
       totalTokens = part.totalUsage.totalTokens;
-      return { totalTokens, sources: opts.sources };
+      return { totalTokens, sources: opts.sources, createdAt: new Date().toISOString() };
     },
     onFinish: async ({ messages: finalMessages }) => {
       try {

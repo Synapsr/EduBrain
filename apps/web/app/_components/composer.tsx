@@ -164,7 +164,7 @@ export function Composer({
   const model = MODEL_OPTIONS[modelTier];
 
   return (
-    <div className="bg-background/80 backdrop-blur-sm">
+    <div className="bg-canvas">
       <div className="mx-auto max-w-3xl px-4 pt-3 pb-4">
         <form
           onSubmit={(e) => {

@@ -116,17 +116,17 @@ export function ChatThread({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex-1 overflow-y-auto">
+      <div className="relative flex-1 overflow-y-auto">
+        {activeFramework ? (
+          <div className="pointer-events-none sticky top-0 z-10 flex justify-center bg-gradient-to-b from-canvas via-canvas/85 to-transparent px-4 pt-3 pb-5">
+            <span className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-accent">
+              <SparkIcon className="size-3.5" />
+              Cadre&nbsp;: {activeFramework.name}
+            </span>
+          </div>
+        ) : null}
         <div className="mx-auto max-w-3xl px-4 pb-4">
-          {activeFramework ? (
-            <div className="sticky top-0 z-10 -mx-4 flex justify-center bg-background/80 px-4 py-2.5 backdrop-blur">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/90 px-3 py-1 text-xs font-medium text-muted-foreground shadow-card">
-                <SparkIcon className="size-3.5 text-accent" />
-                Cadre&nbsp;: <span className="text-foreground">{activeFramework.name}</span>
-              </span>
-            </div>
-          ) : null}
-          <div className={`space-y-7 ${activeFramework ? 'pt-4' : 'pt-8'}`}>
+          <div className={`space-y-7 ${activeFramework ? 'pt-2' : 'pt-8'}`}>
             {messages.length === 0 ? (
               <EmptyState onPick={(text) => sendMessage({ text })} />
             ) : (

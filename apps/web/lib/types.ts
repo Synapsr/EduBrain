@@ -23,6 +23,7 @@ export interface StoredMessage {
   role: 'system' | 'user' | 'assistant';
   parts: StoredMessagePart[];
   metadata?: Record<string, unknown> | null;
+  createdAt?: string;
 }
 
 /** Document (RAG) rattaché à un Cadre. */

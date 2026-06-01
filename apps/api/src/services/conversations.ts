@@ -20,6 +20,7 @@ export interface StoredMessageRow {
   role: string;
   parts: Array<Record<string, unknown>>;
   metadata: Record<string, unknown> | null;
+  createdAt: Date;
 }
 
 function toSummary(row: Conversation): ConversationSummaryRow {
@@ -151,6 +152,7 @@ export async function getMessages(
       role: messages.role,
       parts: messages.parts,
       metadata: messages.metadata,
+      createdAt: messages.createdAt,
     })
     .from(messages)
     .where(eq(messages.conversationId, conversationId))

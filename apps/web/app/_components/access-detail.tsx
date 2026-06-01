@@ -1,5 +1,6 @@
 'use client';
 
+import { QRCodeSVG } from 'qrcode.react';
 import { useEffect, useState } from 'react';
 import type { AccessDetailDTO } from '@/lib/types';
 import {
@@ -9,10 +10,52 @@ import {
   ExternalLinkIcon,
   PlusIcon,
   PowerIcon,
+  QrIcon,
   SparkIcon,
   TrashIcon,
+  XIcon,
 } from './icons';
 import { SupervisionDrawer } from './supervision-drawer';
+
+/** Modale plein écran : QR code de l'accès + consigne « Scannez ». */
+function QrModal({ url, code, onClose }: { url: string; code?: string; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
+      <button type="button" aria-label="Fermer" onClick={onClose} className="absolute inset-0" />
+      <div className="relative z-10 w-full max-w-md animate-pop-in rounded-card bg-surface p-7 text-center shadow-pop">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Fermer"
+          className="absolute right-3 top-3 inline-flex size-8 items-center justify-center rounded-button text-muted-foreground transition-colors hover:bg-surface-muted hover:text-foreground"
+        >
+          <XIcon className="size-5" />
+        </button>
+        <h2 className="font-display text-2xl font-bold tracking-tight">Scannez pour rejoindre</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Avec l’appareil photo du téléphone.</p>
+        {/* Fond blanc requis pour la lisibilité du QR code (contraste). */}
+        <div className="mx-auto mt-5 w-fit rounded-2xl bg-white p-4 shadow-card">
+          <QRCodeSVG value={url} size={232} marginSize={1} className="h-auto w-[min(60vw,232px)]" />
+        </div>
+        {code ? (
+          <p className="mt-5 text-sm text-muted-foreground">
+            Puis saisissez le code&nbsp;:{' '}
+            <span className="font-mono font-bold tracking-wider text-foreground">{code}</span>
+          </p>
+        ) : null}
+        <code className="mt-3 block truncate text-xs text-muted-foreground">{url}</code>
+      </div>
+    </div>
+  );
+}
 
 function CopyLinkButton({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -55,12 +98,16 @@ export function AccessDetail({
   const [origin, setOrigin] = useState('');
   const [newName, setNewName] = useState('');
   const [supervising, setSupervising] = useState<{ id: string; name: string } | null>(null);
+  const [qrOpen, setQrOpen] = useState(false);
+  const [hideCode, setHideCode] = useState(false);
 
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
 
-  const link = `${origin}/e/${access.token}`;
+  // `hideCode` : on partage un lien sans le code (`/e`) ; l'élève saisit le code.
+  const baseLink = `${origin}/e`;
+  const link = hideCode ? baseLink : `${origin}/e/${access.token}`;
 
   return (
     <div className="animate-fade-in space-y-5">
@@ -126,27 +173,66 @@ export function AccessDetail({
       </section>
 
       <section className="rounded-card border border-border bg-surface p-5 shadow-card">
-        <h3 className="text-sm font-bold">Lien d’accès élève</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          Partagez ce lien avec vos élèves. Ils choisissent leur prénom et discutent avec
-          l’assistant <em>sous ce Cadre</em>. (Données fictives — préfiguration d’un compte élève.)
-        </p>
-        {access.active ? (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <code className="min-w-0 flex-1 truncate rounded-button border border-border bg-surface-muted px-3 py-2 font-mono text-sm">
-              {link}
-            </code>
-            <CopyLinkButton url={link} />
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-button border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-surface-muted"
-            >
-              Ouvrir
-              <ExternalLinkIcon className="size-3.5" />
-            </a>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold">Lien d’accès élève</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Partagez ce lien avec vos élèves. Ils choisissent leur prénom et discutent avec
+              l’assistant <em>sous ce Cadre</em>.
+            </p>
           </div>
+          <button
+            type="button"
+            aria-pressed={hideCode}
+            onClick={() => setHideCode((v) => !v)}
+            title="Partager un lien sans le code : l’élève saisit le code lui-même."
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              hideCode
+                ? 'border-accent/40 bg-accent-soft text-accent'
+                : 'border-border text-muted-foreground hover:bg-surface-muted hover:text-foreground'
+            }`}
+          >
+            {hideCode ? <CheckIcon className="size-3.5" /> : null}
+            Masquer le code
+          </button>
+        </div>
+        {access.active ? (
+          <>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <code className="min-w-0 flex-1 truncate rounded-button border border-border bg-surface-muted px-3 py-2 font-mono text-sm">
+                {link}
+              </code>
+              <CopyLinkButton url={link} />
+              <a
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-button border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-surface-muted"
+              >
+                Ouvrir
+                <ExternalLinkIcon className="size-3.5" />
+              </a>
+              <button
+                type="button"
+                onClick={() => setQrOpen(true)}
+                aria-label="Afficher le QR code"
+                title="Afficher le QR code"
+                className="inline-flex items-center gap-1.5 rounded-button border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-surface-muted"
+              >
+                <QrIcon className="size-4" />
+                QR code
+              </button>
+            </div>
+            {hideCode ? (
+              <p className="mt-2 rounded-button bg-surface-muted px-3 py-2 text-xs text-muted-foreground">
+                Les élèves vont sur <span className="font-mono text-foreground">{baseLink}</span>{' '}
+                puis saisissent le code&nbsp;:{' '}
+                <span className="font-mono font-bold tracking-wider text-foreground">
+                  {access.token}
+                </span>
+              </p>
+            ) : null}
+          </>
         ) : (
           <p className="mt-3 rounded-button border border-dashed border-border bg-surface-muted px-3 py-2.5 text-sm text-muted-foreground">
             Lien désactivé — réactivez l’espace pour le partager à nouveau.
@@ -235,6 +321,14 @@ export function AccessDetail({
           studentId={supervising.id}
           studentName={supervising.name}
           onClose={() => setSupervising(null)}
+        />
+      ) : null}
+
+      {qrOpen && access.active ? (
+        <QrModal
+          url={link}
+          code={hideCode ? access.token : undefined}
+          onClose={() => setQrOpen(false)}
         />
       ) : null}
     </div>

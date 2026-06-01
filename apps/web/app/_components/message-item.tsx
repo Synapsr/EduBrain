@@ -22,6 +22,14 @@ function partsToText(message: UIMessage): string {
     .join('');
 }
 
+/** Date d'envoi formatée proprement (ex. « 1 juin 2026 à 14:32 »). */
+function formatDate(iso?: string): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeStyle: 'short' }).format(d);
+}
+
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
@@ -56,25 +64,30 @@ export function MessageItem({
   variant?: MessageVariant;
 }) {
   const text = partsToText(message);
-  const metadata = message.metadata as { totalTokens?: number; sources?: ChatSource[] } | undefined;
-  const tokens = metadata?.totalTokens;
+  const metadata = message.metadata as { sources?: ChatSource[]; createdAt?: string } | undefined;
   const sources = metadata?.sources ?? [];
   // L'élève ne voit ni les sources ni les métadonnées : interface épurée.
   const showSources = variant !== 'student' && !streaming && sources.length > 0;
   const showMeta = variant !== 'student' && !streaming && Boolean(text);
+  const dateLabel = variant !== 'student' ? formatDate(metadata?.createdAt) : null;
 
   if (message.role === 'user') {
     return (
-      <div className="flex animate-rise-in justify-end">
+      <div className="group flex animate-rise-in flex-col items-end">
         <div className="max-w-[82%] whitespace-pre-wrap rounded-card rounded-tr-sm bg-accent-soft px-4 py-2.5 text-[0.95rem] leading-relaxed text-foreground shadow-card">
           {text}
         </div>
+        {dateLabel ? (
+          <time className="mt-1 px-1 text-[0.7rem] text-muted-foreground/70 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+            {dateLabel}
+          </time>
+        ) : null}
       </div>
     );
   }
 
   return (
-    <div className="flex animate-rise-in gap-3">
+    <div className="group flex animate-rise-in gap-3">
       <div
         aria-hidden
         className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground shadow-card"
@@ -122,8 +135,10 @@ export function MessageItem({
         {showMeta ? (
           <div className="mt-1.5 flex items-center gap-2">
             <CopyButton text={text} />
-            {typeof tokens === 'number' ? (
-              <span className="text-xs text-muted-foreground/80">· {tokens} tokens</span>
+            {dateLabel ? (
+              <time className="text-xs text-muted-foreground/60 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                · {dateLabel}
+              </time>
             ) : null}
           </div>
         ) : null}

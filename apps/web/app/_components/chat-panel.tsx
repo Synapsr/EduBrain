@@ -37,7 +37,7 @@ export function ChatPanel({
           id: m.id,
           role: m.role,
           parts: m.parts,
-          metadata: m.metadata ?? undefined,
+          metadata: { ...(m.metadata ?? {}), createdAt: m.createdAt },
         })) as unknown as UIMessage[];
         setState({
           kind: 'ready',

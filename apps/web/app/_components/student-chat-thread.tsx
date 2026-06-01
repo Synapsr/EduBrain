@@ -121,7 +121,7 @@ export function StudentChatThread({
         </div>
       </div>
 
-      <div className="bg-background/80 backdrop-blur-sm">
+      <div className="bg-canvas">
         <div className="mx-auto max-w-2xl px-4 pt-3 pb-4">
           <form
             onSubmit={(e) => {
